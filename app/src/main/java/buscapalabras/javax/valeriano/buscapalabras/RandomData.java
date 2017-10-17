@@ -60,6 +60,7 @@ public class RandomData {
 
 
             String resultados = "Error";
+            int sumError = 0;
             do {
                 String resultDireccion = direccion[randData.nextInt(4)].toString();
                 Log.d("Direccion", resultDireccion);
@@ -76,6 +77,12 @@ public class RandomData {
                 Log.d("PosicionX",String.valueOf(posicionX));
                 Log.d("PosicionY", String.valueOf(posicionY));
                 Log.d("Resultado",resultados.toString());
+                sumError = (sumError + 1);
+                if(sumError >= 4){
+                    posicionX = randData.nextInt(10);
+                    posicionY = randData.nextInt(10);
+                    sumError = 0;
+                }
             } while(resultados.equalsIgnoreCase("Error"));
 
         }
