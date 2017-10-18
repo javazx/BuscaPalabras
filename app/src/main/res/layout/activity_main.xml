@@ -12,12 +12,13 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tv_message"
+            android:id="@+id/timeX"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="15dp"
             android:background="#6699ff"
-            android:padding="5dp"
+            android:padding="10dp"
+            android:textStyle="bold"
             android:text="Tiempo: " />
 
         <GridView

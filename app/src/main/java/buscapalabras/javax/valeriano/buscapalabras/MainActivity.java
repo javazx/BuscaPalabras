@@ -1,6 +1,7 @@
 package buscapalabras.javax.valeriano.buscapalabras;
 
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -17,6 +18,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,12 +28,24 @@ public class MainActivity extends AppCompatActivity {
     TextView palabras;
     private ArrayList<String> formList;
     RandomData datos = new RandomData();
-
+    private Random randData = new Random();
+    private Integer[] colores = new Integer[] {Color.RED,Color.BLUE,Color.GREEN,Color.CYAN,Color.YELLOW,Color.MAGENTA};
+    //BackgroundSound mBackgroundSound = new BackgroundSound();
+    MediaPlayer player;
+    int time = 60;
+    Timer t;
+    TimerTask task;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        player = MediaPlayer.create(MainActivity.this, R.raw.littleidea);
+        player.setLooping(true); // Set looping
+        player.setVolume(1.0f, 1.0f);
+        player.start();
+        startTimer();
 
         palabras = (TextView)findViewById(R.id.palabras);
 
@@ -39,7 +55,9 @@ public class MainActivity extends AppCompatActivity {
 
             ArrayList<String> arrayData = new ArrayList<String>();
             ArrayList<String> arrayCompletado = new ArrayList<String>();
+            ArrayList<String> arrayPosicion = new ArrayList<String>();
             String salida = "";
+            int color = colores[randData.nextInt(6)];
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -56,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("Valor", valor);
                         arrayData.add(valor.substring(0));
                     }
-                    txtView.setBackgroundColor(Color.RED);
+                    txtView.setBackgroundColor(color);
                 }
 
                 if (MotionEvent.ACTION_UP == event.getAction()) {
@@ -71,16 +89,25 @@ public class MainActivity extends AppCompatActivity {
                     for(int i=0; i<arrayCompara.length;i++){
                         ListCompara.add(arrayCompara[i].toString());
                     }
+                    if(ListCompara.contains(salida)){
+                        for(int i=0; i<arrayData.size();i++){
+                            arrayPosicion.add(arrayData.get(i).substring(2));
+                        }
+                    }
                     if(!ListCompara.contains(salida)){
                         for(int i=0; i<arrayData.size();i++){
                             TextView txtView2 = (TextView)gridView.getChildAt(Integer.parseInt(arrayData.get(i).substring(2)));
-                            txtView2.setBackgroundColor(Color.TRANSPARENT);
+                            if(!arrayPosicion.contains(arrayData.get(i).substring(2))){
+                                txtView2.setBackgroundColor(Color.TRANSPARENT);
+                            }
                         }
                     }else if (!arrayCompletado.contains(salida)){
                         arrayCompletado.add(salida);
+                        color = colores[randData.nextInt(6)];
                         if(arrayCompletado.size() == 3){
                             changePalabras();
                             arrayCompletado.clear();
+                            arrayPosicion.clear();
                         }else{
                             String compara2 = datos.getPalabras().substring(1);
                             String[] arrayCompara2 = compara.split("-");
@@ -179,4 +206,41 @@ public class MainActivity extends AppCompatActivity {
         }
         return json;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        player.start();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        player.pause();
+    }
+
+    public void startTimer(){
+        t = new Timer();
+        task = new TimerTask() {
+
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        TextView tv1 = (TextView) findViewById(R.id.timeX);
+                        tv1.setText("Tiempo Restante: " + time + "");
+                        if (time > 0)
+                            time -= 1;
+                        else {
+                            tv1.setText("Fin");
+                        }
+                    }
+                });
+            }
+        };
+        t.scheduleAtFixedRate(task, 0, 1000);
+    }
+
 }
