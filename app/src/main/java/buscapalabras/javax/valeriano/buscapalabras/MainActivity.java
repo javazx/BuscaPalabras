@@ -193,6 +193,10 @@ public class MainActivity extends AppCompatActivity {
         gridView.setAdapter(adapter);
     }
 
+    public void gameOver(){
+        puntaje = 0;
+    }
+
     public String loadJSONFromAsset() {
         String json = null;
         try {
