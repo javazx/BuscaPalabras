@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     int time = 60;
     Timer t;
     TimerTask task;
+    int puntaje = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
                         for(int i=0; i<arrayData.size();i++){
                             arrayPosicion.add(arrayData.get(i).substring(2));
                         }
+                        puntaje += 5;
                     }
                     if(!ListCompara.contains(salida)){
                         for(int i=0; i<arrayData.size();i++){
@@ -230,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         TextView tv1 = (TextView) findViewById(R.id.timeX);
-                        tv1.setText("Tiempo Restante: " + time + "");
+                        tv1.setText("Tiempo Restante: " + time + "       Puntaje: " + puntaje);
                         if (time > 0)
                             time -= 1;
                         else {
