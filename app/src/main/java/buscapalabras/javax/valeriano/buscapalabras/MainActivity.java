@@ -1,12 +1,16 @@
 package buscapalabras.javax.valeriano.buscapalabras;
 
 import android.graphics.Color;
+import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -32,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private Integer[] colores = new Integer[] {Color.RED,Color.BLUE,Color.GREEN,Color.CYAN,Color.YELLOW,Color.MAGENTA};
     //BackgroundSound mBackgroundSound = new BackgroundSound();
     MediaPlayer player;
-    int time = 60;
+    int time = 30;
     Timer t;
     TimerTask task;
     int puntaje = 0;
@@ -41,6 +45,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Screen Size
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+
+        Log.d("X Size: ", String.valueOf(width));
+        Log.d("XYSize: ", String.valueOf(height));
 
         player = MediaPlayer.create(MainActivity.this, R.raw.littleidea);
         player.setLooping(true); // Set looping
@@ -110,6 +124,11 @@ public class MainActivity extends AppCompatActivity {
                             changePalabras();
                             arrayCompletado.clear();
                             arrayPosicion.clear();
+                            if(time > 0){
+                                time = 30 + time;
+                            }else{
+                                gameOver();
+                            }
                         }else{
                             String compara2 = datos.getPalabras().substring(1);
                             String[] arrayCompara2 = compara.split("-");
@@ -159,7 +178,23 @@ public class MainActivity extends AppCompatActivity {
         datos.setPalabras(formList);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, datos.getDatos());
+                android.R.layout.simple_list_item_1, datos.getDatos()){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent){
+                /// Get the Item from ListView
+                View view = super.getView(position, convertView, parent);
+
+                TextView tv = (TextView) view.findViewById(android.R.id.text1);
+
+                // Set the text size 25 dip for ListView each item
+                tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,13);
+                tv.setHeight(1);
+                tv.setWidth(1);
+                tv.setLineSpacing(1,1);
+                // Return the view
+                return view;
+            }
+        };
 
         palabras.setText("Palabras: " + datos.getPalabras().substring(1));
         gridView.setAdapter(adapter);
@@ -187,7 +222,23 @@ public class MainActivity extends AppCompatActivity {
         datos.setPalabras(formList);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, datos.getDatos());
+                android.R.layout.simple_list_item_1, datos.getDatos()){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent){
+                /// Get the Item from ListView
+                View view = super.getView(position, convertView, parent);
+
+                TextView tv = (TextView) view.findViewById(android.R.id.text1);
+
+                // Set the text size 25 dip for ListView each item
+                tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,13);
+                tv.setHeight(1);
+                tv.setWidth(1);
+                tv.setLineSpacing(1,1);
+                // Return the view
+                return view;
+            }
+        };
 
         palabras.setText("Palabras: " + datos.getPalabras().substring(1));
         gridView.setAdapter(adapter);
@@ -240,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
                         if (time > 0)
                             time -= 1;
                         else {
-                            tv1.setText("Fin");
+                            tv1.setText("GAME OVER");
                         }
                     }
                 });
