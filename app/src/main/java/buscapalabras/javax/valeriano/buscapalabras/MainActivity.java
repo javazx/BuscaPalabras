@@ -1,5 +1,8 @@
 package buscapalabras.javax.valeriano.buscapalabras;
 
+import android.app.Dialog;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.media.MediaPlayer;
@@ -11,6 +14,7 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -32,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     TextView palabras;
     private ArrayList<String> formList;
     RandomData datos = new RandomData();
+    RandomDataMini datosMini = new RandomDataMini();
     private Random randData = new Random();
     private Integer[] colores = new Integer[] {Color.RED,Color.BLUE,Color.GREEN,Color.CYAN,Color.YELLOW,Color.MAGENTA};
     //BackgroundSound mBackgroundSound = new BackgroundSound();
@@ -40,21 +45,32 @@ public class MainActivity extends AppCompatActivity {
     Timer t;
     TimerTask task;
     int puntaje = 0;
+    int tipoPantalla = 0;
+    Dialog settingsDialog = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Set portrait orientation
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        settingsDialog = new Dialog(this);
         //Screen Size
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         int width = size.x;
         int height = size.y;
+        tipoPantalla = width;
 
         Log.d("X Size: ", String.valueOf(width));
-        Log.d("XYSize: ", String.valueOf(height));
+        Log.d("Y Size: ", String.valueOf(height));
+
+        //DisplayMetrics metrics = new DisplayMetrics();
+        //getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        //Log.d("ApplicationTagName", "Display width in px is " + metrics.widthPixels);
 
         player = MediaPlayer.create(MainActivity.this, R.raw.littleidea);
         player.setLooping(true); // Set looping
@@ -65,6 +81,12 @@ public class MainActivity extends AppCompatActivity {
         palabras = (TextView)findViewById(R.id.palabras);
 
         gridView = (GridView) findViewById(R.id.gv);
+
+        if(tipoPantalla < 1080){
+            gridView.setNumColumns(9);
+        }else{
+            gridView.setNumColumns(10);
+        }
 
         gridView.setOnTouchListener(new GridView.OnTouchListener(){
 
@@ -98,7 +120,12 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     Log.d("Result", salida);
-                    String compara = datos.getPalabras().substring(1);
+                    String compara = "";
+                    if(tipoPantalla < 1080){
+                        compara = datosMini.getPalabras().substring(1);
+                    }else{
+                        compara = datos.getPalabras().substring(1);
+                    }
                     String[] arrayCompara = compara.split("-");
                     ArrayList<String> ListCompara = new ArrayList<String>();
                     for(int i=0; i<arrayCompara.length;i++){
@@ -130,7 +157,12 @@ public class MainActivity extends AppCompatActivity {
                                 gameOver();
                             }
                         }else{
-                            String compara2 = datos.getPalabras().substring(1);
+                            String compara2 = "";
+                            if(tipoPantalla < 1080){
+                                compara2 = datosMini.getPalabras().substring(1);
+                            }else{
+                                compara2 = datos.getPalabras().substring(1);
+                            }
                             String[] arrayCompara2 = compara.split("-");
                             String salidaTexto = "";
                             for(String salida: arrayCompletado){
@@ -174,27 +206,54 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        if(tipoPantalla < 1080){
+            datosMini.setPalabras(formList);
+        }else{
+            datos.setPalabras(formList);
+        }
 
-        datos.setPalabras(formList);
+        ArrayAdapter<String> adapter = null;
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, datos.getDatos()){
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent){
-                /// Get the Item from ListView
-                View view = super.getView(position, convertView, parent);
+        if(tipoPantalla < 1080){
+            adapter = new ArrayAdapter<String>(this,
+                    android.R.layout.simple_list_item_1, datosMini.getDatos()){
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent){
+                    /// Get the Item from ListView
+                    View view = super.getView(position, convertView, parent);
 
-                TextView tv = (TextView) view.findViewById(android.R.id.text1);
+                    TextView tv = (TextView) view.findViewById(android.R.id.text1);
 
-                // Set the text size 25 dip for ListView each item
-                tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,13);
-                tv.setHeight(1);
-                tv.setWidth(1);
-                tv.setLineSpacing(1,1);
-                // Return the view
-                return view;
-            }
-        };
+                    // Set the text size 25 dip for ListView each item
+                    tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,12);
+                    tv.setHeight(1);
+                    tv.setWidth(1);
+                    tv.setLineSpacing(1,1);
+                    // Return the view
+                    return view;
+                }
+            };
+        }else{
+            adapter = new ArrayAdapter<String>(this,
+                    android.R.layout.simple_list_item_1, datos.getDatos()){
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent){
+                    /// Get the Item from ListView
+                    View view = super.getView(position, convertView, parent);
+
+                    TextView tv = (TextView) view.findViewById(android.R.id.text1);
+
+                    // Set the text size 25 dip for ListView each item
+                    tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
+                    tv.setHeight(1);
+                    tv.setWidth(1);
+                    tv.setLineSpacing(1,1);
+                    // Return the view
+                    return view;
+                }
+            };
+        }
+
 
         palabras.setText("Palabras: " + datos.getPalabras().substring(1));
         gridView.setAdapter(adapter);
@@ -231,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
                 TextView tv = (TextView) view.findViewById(android.R.id.text1);
 
                 // Set the text size 25 dip for ListView each item
-                tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,13);
+                tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP,15);
                 tv.setHeight(1);
                 tv.setWidth(1);
                 tv.setLineSpacing(1,1);
@@ -246,6 +305,21 @@ public class MainActivity extends AppCompatActivity {
 
     public void gameOver(){
         puntaje = 0;
+        settingsDialog = new Dialog(this);
+        settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        settingsDialog.setContentView(getLayoutInflater().inflate(R.layout.modal_layout, null));
+        settingsDialog.show();
+    }
+
+    public void dismissListener(View view) {
+        settingsDialog.dismiss();
+        Intent mainIntent = new Intent().setClass(
+                MainActivity.this, Select_GameActivity.class);
+        startActivity(mainIntent);
+
+        // Close the activity so the user won't able to go back this
+        // activity pressing Back button
+        finish();
     }
 
     public String loadJSONFromAsset() {
@@ -292,6 +366,13 @@ public class MainActivity extends AppCompatActivity {
                             time -= 1;
                         else {
                             tv1.setText("GAME OVER");
+                            if(settingsDialog.isShowing()){
+                                Log.d("Showin"," Show the Dialog");
+                            }else{
+                                gameOver();
+                                task.cancel();
+                            }
+
                         }
                     }
                 });
