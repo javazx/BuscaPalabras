@@ -41,12 +41,13 @@ public class MainActivity extends AppCompatActivity {
     private Integer[] colores = new Integer[] {Color.RED,Color.BLUE,Color.GREEN,Color.CYAN,Color.YELLOW,Color.MAGENTA};
     //BackgroundSound mBackgroundSound = new BackgroundSound();
     MediaPlayer player;
-    int time = 30;
+    int time = 0;
     Timer t;
     TimerTask task;
     int puntaje = 0;
     int tipoPantalla = 0;
     Dialog settingsDialog = null;
+    TextView score;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +56,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Set portrait orientation
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
+        String duracion = getIntent().getStringExtra("duracion");
+        if(duracion.startsWith("Facil")){
+            time = 60;
+        }else if(duracion.startsWith("Medio")){
+            time = 40;
+        }else if(duracion.startsWith("Dificil")){
+            time = 30;
+        }
         settingsDialog = new Dialog(this);
         //Screen Size
         Display display = getWindowManager().getDefaultDisplay();
@@ -147,12 +155,26 @@ public class MainActivity extends AppCompatActivity {
                     }else if (!arrayCompletado.contains(salida)){
                         arrayCompletado.add(salida);
                         color = colores[randData.nextInt(6)];
+                        if(arrayCompletado.size() == 1){
+                            if(time > 0){
+                                time = time + 1;
+                            }else{
+                                gameOver();
+                            }
+                        }
+                        if(arrayCompletado.size() == 2){
+                            if(time > 0){
+                                time = time + 2;
+                            }else{
+                                gameOver();
+                            }
+                        }
                         if(arrayCompletado.size() == 3){
                             changePalabras();
                             arrayCompletado.clear();
                             arrayPosicion.clear();
                             if(time > 0){
-                                time = 30 + time;
+                                time = time + 3;
                             }else{
                                 gameOver();
                             }
@@ -304,10 +326,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void gameOver(){
-        puntaje = 0;
         settingsDialog = new Dialog(this);
         settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         settingsDialog.setContentView(getLayoutInflater().inflate(R.layout.modal_layout, null));
+        score = (TextView)settingsDialog.findViewById(R.id.textViewScore);
+        score.setText("Puntaje: " + puntaje);
+        puntaje = 0;
         settingsDialog.show();
     }
 

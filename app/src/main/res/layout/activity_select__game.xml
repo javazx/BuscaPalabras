@@ -26,6 +26,16 @@
             android:textSize="50sp"
             android:textStyle="bold" />
 
+        <Spinner
+            android:id="@+id/spinner2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/darker_gray" />
+
+        <Space
+            android:layout_width="1dp"
+            android:layout_height="20dp" />
+
         <ImageButton
             android:id="@+id/imageButton"
             style="@android:style/Widget.Holo.Light.ImageButton"
